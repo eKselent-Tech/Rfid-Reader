@@ -1,0 +1,61 @@
+#include<SoftwareSerial.h>
+SoftwareSerial rfid(2,3);
+#define LED 13
+#include<LiquidCrystal.h> 
+LiquidCrystal lcd(A0,A1,A2,A3,A4,A5);
+void setup() 
+{
+  pinMode(LED,OUTPUT);
+  Serial.begin(9600);
+  rfid.begin(9600);
+  lcd.begin(16, 2); 
+  lcd.setCursor(4, 0);
+  lcd.print("WELCOME");
+  lcd.setCursor(0, 1); 
+  lcd.print(" .............. ");  
+  delay(1000); 
+  lcd.clear(); 
+}
+ 
+void loop() 
+{
+  String Card;
+  
+  lcd.setCursor(0, 0);
+  lcd.print("SWIPE CARD");
+  if (rfid.available())
+  {
+    unsigned char i=0;
+    while(i<12)
+    {
+      if(rfid.available())
+      {
+         Card += (char)rfid.read();
+         i++;
+      }
+    }
+    Serial.println(Card);
+    Serial.flush();
+  lcd.setCursor(0, 1);
+  lcd.print(Card);
+  delay(1000);
+if(Card=="0800B1A82839")
+    {
+     Serial.println("Authorised");
+     lcd.setCursor(0, 1);
+     lcd.print("AUTHORIZED USER");
+     digitalWrite(LED,1);    
+    }
+    else
+    {
+      Serial.println("Un-authorised");
+      lcd.setCursor(0, 1);
+      lcd.print("UNKNOWN USER   ");
+      digitalWrite(LED,0);
+    }
+Card="";
+delay(2500);
+lcd.setCursor(0, 1);
+lcd.print("                ");
+}
+}
